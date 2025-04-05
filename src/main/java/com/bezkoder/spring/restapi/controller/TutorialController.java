@@ -2,6 +2,7 @@ package com.bezkoder.spring.restapi.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,12 +21,15 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bezkoder.spring.restapi.model.Tutorial;
 import com.bezkoder.spring.restapi.service.TutorialService;
 
-@CrossOrigin(origins = "http://localhost:8081")
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api")
 public class TutorialController {
   @Autowired
   TutorialService tutorialService;
+
+      private final Random random = new Random();
+
 
   @GetMapping("/tutorials")
   public ResponseEntity<List<Tutorial>> getAllTutorials(@RequestParam(required = false) String title) {
@@ -117,4 +121,21 @@ public class TutorialController {
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+
+
+  @GetMapping("/test123")
+  public ResponseEntity<List<Tutorial>> test123() {
+      if (random.nextInt(5) == 0) {
+          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+      } else {
+          // Corrected: Create a List<Tutorial> (replace with your actual data retrieval)
+          List<Tutorial> tutorials = new ArrayList<Tutorial>();
+         
+            tutorialService.findAll().forEach(tutorials::add);
+         
+          return ResponseEntity.ok(tutorials);
+      }
+  }
+
 }
