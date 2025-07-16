@@ -1,0 +1,43 @@
+name: Claude - Generate Java Tests
+
+on:
+  issue_comment:
+    types: [created]
+  issues:
+    types: [opened, assigned]
+
+jobs:
+  generate-tests:
+    if: |
+      github.event_name == 'issue_comment' &&
+      contains(github.event.comment.body, '@claude') ||
+      (github.event_name == 'issues' &&
+      (contains(github.event.issue.body, '@claude') ||
+       contains(github.event.issue.title, '@claude')))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Claude Code to generate JUnit tests
+        uses: anthropics/claude-code-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Analyze the Java classes in this project.
+            For each public class or method without a corresponding test, generate appropriate JUnit test cases.
+            Use standard Maven/Gradle structure and place tests in `src/test/java/...`.
+            Create any missing test classes or folders.
+            Use descriptive test method names.
+            Do not modify production code.
+          allowed_tools: |
+            edit
+            write
+            mkdir
+            git
+            mcp__github__create_pull_request
